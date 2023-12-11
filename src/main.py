@@ -12,12 +12,14 @@ from pandas_lib import pandas_get_time
 if not path.exists(cur_db_file):
     conn = connect(cur_db_file)
     df = read_csv(cur_db_data)
+    df.drop("Airport_fee", axis=1, inplace= True)
     df["tpep_pickup_datetime"] = to_datetime(df["tpep_pickup_datetime"])
     df.to_sql(cur_db_name, conn, if_exists='replace', index=False, chunksize=1000)
 engine = create_engine(db_postgres)
 inspector = inspect(engine)
 if not cur_db_name in inspector.get_table_names():
     df = read_csv(cur_db_data)
+    df.drop("Airport_fee", axis=1, inplace= True)
     df["tpep_pickup_datetime"] = to_datetime(df["tpep_pickup_datetime"])
     df.to_sql(cur_db_name, engine, if_exists='replace', index=False, chunksize=500)
 
