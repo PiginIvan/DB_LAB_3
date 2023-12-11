@@ -23,10 +23,10 @@ ans = [0, 0, 0, 0]
 #cur_db_data - файл формата '.csv', на выбор 'tiny' или 'big'
 #attempts - количество попыток для запуска каждого запроса
 libraries = {'psycopg2' : True, 'sqlalchemy' : True, 'sqlite3' : True, 'duckdb' : True, 'pandas' : True}
-cur_db_file = db_file_tiny
-cur_db_name = db_name_tiny
-cur_db_data = tiny
-attempts = 1
+cur_db_file = db_file_big
+cur_db_name = db_name_big
+cur_db_data = big
+attempts = 10
 
 #запросы
 query1 = f"""SELECT "VendorID", count(*) FROM "{cur_db_name}" GROUP BY 1;"""

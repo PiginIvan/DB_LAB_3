@@ -10,6 +10,7 @@ def pandas_get_time():
             start_time = perf_counter()
             read_sql(tasks[query_ind],con=engine)
             end_time = perf_counter()
-        ans[query_ind] = float('{:.3f}'.format((end_time - start_time) / attempts))
+            ans[query_ind] += end_time - start_time
+        ans[query_ind] = float('{:.3f}'.format((ans[query_ind]) / attempts))
     engine.dispose()
     return ans

@@ -19,7 +19,8 @@ def sqlite3_get_time():
             start_time = perf_counter()
             cursor.execute(tasks[query_ind])
             end_time = perf_counter()
-        ans[query_ind] = float('{:.3f}'.format((end_time - start_time) / attempts))
+            ans[query_ind] += end_time - start_time
+        ans[query_ind] = float('{:.3f}'.format((ans[query_ind]) / attempts))
     cursor.close()
     conn.close()
     replace_queries('back')
