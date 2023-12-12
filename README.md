@@ -28,7 +28,9 @@ git clone https://github.com/PiginIvan/DB_LAB_3.git
 Создайте папку `data` и загрузите в нее файл формата `.csv`.
 
 ### 4) Настройка программы(config)
-В файле `settings.py` есть ИНФОРМАЦИЯ ДЛЯ ЗАПУСКА(в словаре `libraries` значение по ключу(названию библиотеки) соответствует `True`, если необходимо получить время для данной библиотеки, `False` - в обратном случае)
+В файле `settings.py` есть **ИНФОРМАЦИЯ ДЛЯ ЗАПУСКА**:
+
+в словаре `libraries` значение по ключу(названию библиотеки) соответствует `True`, если необходимо получить время для данной библиотеки, `False` - в обратном случае
 
 `cur_db_file` - файл формата '.db', на выбор 'mydb_tiny.db' или 'mydb_big.db'(если его нет, создается автоматически)
 
@@ -40,6 +42,7 @@ git clone https://github.com/PiginIvan/DB_LAB_3.git
 
 ### 5) Запуск программы
 Для того, чтобы запустить бенчмарк, нужно запустить файл `main.py` через IDE или прописать в консоли данную команду. Результаты запусков отобразятся в консоли.
+
 ```
 python main.py
 ```
@@ -109,5 +112,61 @@ COUNT(*) FROM "trips" GROUP BY 1, 2, 3 ORDER BY 2, 4 DESC;
 
 Этот запрос извлекает информацию из таблицы trips о кол-ве пассажирор `passenger_count`, годе по времени взятия такси `tpep_pickup_datetime`, округлённой дистанции поездки `trip_distance` и подсчитывает кол-во записей для каждой уникальной комбинации этих параметров. Результаты сортируются по году взятия такси в порядке возрастания, а кол-во записей в каждой группе упорядочивается по убыванию.
 
-## Рассматриваемые библиотеки
+## Загрузка данных и создание БД
+
+Некоторые библиотеки предоставляют возможность создания базы данных, однако я использовал `sqlite3 / pandas` для создания .db файла и `sqlalchemy / pandas` для загрузки данных в постгрес один раз перед запуском запросов. В каждой библиотеке обращался к уже созданному файлу .db или постгресу.
+
+### Создание .db файла
+```py
+from sqlite3 import connect
+from pandas import read_csv, to_datetime
+conn = connect(cur_db_file) #cur_db_file = 'data\\mydb_big.db' или 'data\\mydb_tiny.db'
+df = read_csv(cur_db_data)
+df.drop("Airport_fee", axis=1, inplace= True)
+df["tpep_pickup_datetime"] = to_datetime(df["tpep_pickup_datetime"])
+df.to_sql(cur_db_name, conn, if_exists='replace', index=False, chunksize=1000)
+```
+
+Данный файл использовался для `sqlite3` и `duckdb`.
+
+### Создание таблицы в постгрес
+
+```py
+from sqlalchemy import inspect, create_engine
+from pandas import read_csv, to_datetime
+engine = create_engine(db_postgres) #db_postgres = 'postgresql://postgres:postgres@localhost:5432/postgres'
+df = read_csv(cur_db_data)
+df.drop("Airport_fee", axis=1, inplace= True)
+df["tpep_pickup_datetime"] = to_datetime(df["tpep_pickup_datetime"])
+df.to_sql(cur_db_name, engine, if_exists='replace', index=False, chunksize=500)
+```
+
+Постгрес использовался для `psycopg2`, `sqlalchemy` и `pandas`.
+
+### Рассмотренные библиотеки
+
+
+
+
+## Сравнительные графики
+
+### 1. Файл tiny
+
+#### Результаты запусков
+
+![](https://github.com/PiginIvan/DB_LAB_3/blob/main/resources/tiny_res.png)
+
+#### Графики
+
+![](https://github.com/PiginIvan/DB_LAB_3/blob/main/resources/tiny_graph.png)
+
+### 2. Файл big
+
+#### Результаты запусков
+
+![](https://github.com/PiginIvan/DB_LAB_3/blob/main/resources/big_res.png)
+
+#### Графики
+
+![](https://github.com/PiginIvan/DB_LAB_3/blob/main/resources/big_graph.png)
 
